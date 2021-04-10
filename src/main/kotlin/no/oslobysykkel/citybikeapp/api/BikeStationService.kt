@@ -8,7 +8,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.Instant
 
-class BikeStatusService {
+class BikeStationService {
     private val apiIdentifier = "origo-kodeoppgave"
     private val jsonParser = ObjectMapper()
     @Volatile private var cachedBikeStationStatus: BikeStationStatus? = null
@@ -21,7 +21,7 @@ class BikeStatusService {
      * If no cache exists, NULL is returned.
      */
     @Synchronized
-    fun getBikeStatus(): BikeStationStatus? {
+    fun getBikeStationStatus(): BikeStationStatus? {
         if (cacheExpiry > Instant.now())
             return cachedBikeStationStatus
         else {

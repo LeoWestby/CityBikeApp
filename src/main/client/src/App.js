@@ -10,7 +10,7 @@ class App extends Component {
   };
 
   async updateBikeList() {
-    const response = await fetch('http://localhost:8080/api/bikeStatus');
+    const response = await fetch('http://localhost:8080/api/bikeStationStatus');
     if (response.status === 200) {
       const body = await response.json();
       this.setState({
