@@ -47,7 +47,7 @@ class App extends Component {
 
     return <div className="App">
       <h2>Liste over stasjoner (sist oppdatert {this.getFormattedTime(stationsUpdatedAt)})</h2>
-      <table className="table table-hover">
+      <table className="table table-striped table-hover">
         <thead>
           <tr>
             <th scope="col">Lokasjon</th>
