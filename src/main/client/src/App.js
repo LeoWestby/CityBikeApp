@@ -9,21 +9,27 @@ class App extends Component {
     stationsUpdatedAt: new Date(0)
   };
 
-  async componentDidMount() {
+  async updateBikeList() {
     const response = await fetch('http://localhost:8080/api/bikeStatus');
     if (response.status === 200) {
       const body = await response.json();
       this.setState({
         stations: body.stations,
         stationsUpdatedAt: new Date(body.updatedAt),
-        isLoading: false,
         isError: false
       });
+
+      //Auto refresh bike list
+      setTimeout(() => this.updateBikeList(), body.ttlInSeconds * 1000);
     } else {
-      this.setState({isLoading: false, isError: true});
+      this.setState({isError: true});
     }
   }
 
+  async componentDidMount() {
+    await this.updateBikeList();
+    this.setState({isLoading: false});
+  }
 
   getFormattedTime = date => date.getHours().toString().padStart(2, "0") + ":" +
                              date.getMinutes().toString().padStart(2, "0") + ":" +
