@@ -55,13 +55,15 @@ class App extends Component {
             <th scope="col">Ledige låser</th>
           </tr>
         </thead>
-        {stations.map(station =>
-          <tr key={station.id}>
-            <td>{station.name}</td>
-            <td>{station.availableBikeCount}</td>
-            <td>{station.availableLockCount}</td>
-          </tr>)
-        }
+        <tbody>
+          {stations.map(station =>
+            <tr key={station.id}>
+              <td>{station.name}</td>
+              <td>{station.availableBikeCount}</td>
+              <td>{station.availableLockCount}</td>
+            </tr>)
+          }
+        </tbody>
       </table>
     </div>
   }
