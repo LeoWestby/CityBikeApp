@@ -10,21 +10,43 @@ import java.time.Instant
 
 class BikeStatusService {
     private val apiIdentifier = "origo-kodeoppgave"
+    private val jsonParser = ObjectMapper()
+    @Volatile private var cachedBikeStationStatus: BikeStationStatus? = null
+    @Volatile private var cacheExpiry: Instant = Instant.now()
 
+    /**
+     * Receives the most recent bike station status from the external APIs.
+     * Response values are cached until the expiry time specified in the response (TTL).
+     * If the external APIs are unavailable, the most recently (expired) cached bike station status is returned.
+     * If no cache exists, NULL is returned.
+     */
+    @Synchronized
     fun getBikeStatus(): BikeStationStatus? {
-        val stationInformationResponse = fetchJson("https://gbfs.urbansharing.com/oslobysykkel.no/station_information.json")
-        val stationStatusResponse = fetchJson("https://gbfs.urbansharing.com/oslobysykkel.no/station_status.json")
+        if (cacheExpiry > Instant.now())
+            return cachedBikeStationStatus
+        else {
+            val stationInformationResponse = fetchJson("https://gbfs.urbansharing.com/oslobysykkel.no/station_information.json")
+            val stationStatusResponse = fetchJson("https://gbfs.urbansharing.com/oslobysykkel.no/station_status.json")
 
-        if (stationInformationResponse.statusCode() == 200 && stationStatusResponse.statusCode() == 200) {
-            val stationInformation = ObjectMapper().readValue<StationInformationResponse>(stationInformationResponse.body())
-            val stationStatus = ObjectMapper().readValue<StationStatusResponse>(stationStatusResponse.body())
-            return BikeStationStatus(
-                Instant.ofEpochSecond(stationInformation.lastUpdated),
-                stationInformation.ttl,
-                mapBikeStations(stationInformation, stationStatus)
-            )
+            if (stationInformationResponse.statusCode() == 200 && stationStatusResponse.statusCode() == 200) {
+
+                val stationInformation = jsonParser.readValue<StationInformationResponse>(stationInformationResponse.body())
+                val stationStatus = jsonParser.readValue<StationStatusResponse>(stationStatusResponse.body())
+                val mappedStatus = BikeStationStatus(
+                    Instant.ofEpochSecond(stationInformation.lastUpdated),
+                    stationInformation.ttl,
+                    mapBikeStations(stationInformation, stationStatus)
+                )
+                cachedBikeStationStatus = mappedStatus
+                cacheExpiry = mappedStatus.updatedAt.plusSeconds(mappedStatus.ttlInSeconds.toLong())
+                return cachedBikeStationStatus
+            }
+            else {
+                //Something went wrong. Fall back to cached value and increment cache expiry to try again in 10 seconds
+                cacheExpiry = Instant.now().plusSeconds(10)
+                return cachedBikeStationStatus
+            }
         }
-        return null
     }
 
     private fun fetchJson(url: String): HttpResponse<String> {
