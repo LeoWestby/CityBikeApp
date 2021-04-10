@@ -11,12 +11,11 @@ class App extends Component {
 
   async componentDidMount() {
     const response = await fetch('http://localhost:8080/api/bikeStatus');
-    if (response.status == 200) {
+    if (response.status === 200) {
       const body = await response.json();
-      const updatedAt = new Date(body.lastUpdated * 1000);
       this.setState({
-        stations: body.data.stations,
-        stationsUpdatedAt: updatedAt,
+        stations: body.stations,
+        stationsUpdatedAt: new Date(body.updatedAt),
         isLoading: false,
         isError: false
       });
@@ -24,6 +23,11 @@ class App extends Component {
       this.setState({isLoading: false, isError: true});
     }
   }
+
+
+  getFormattedTime = date => date.getHours().toString().padStart(2, "0") + ":" +
+                             date.getMinutes().toString().padStart(2, "0") + ":" +
+                             date.getSeconds().toString().padStart(2, "0");
 
   render() {
     const {isLoading, stations, stationsUpdatedAt, isError} = this.state;
@@ -36,7 +40,7 @@ class App extends Component {
     }
 
     return <div className="App">
-      <h2>Liste over stasjoner</h2>
+      <h2>Liste over stasjoner (sist oppdatert {this.getFormattedTime(stationsUpdatedAt)})</h2>
       <table className="table table-hover">
         <thead>
           <tr>
@@ -47,9 +51,9 @@ class App extends Component {
         </thead>
         {stations.map(station =>
           <tr key={station.id}>
-            <td>{station.station_id}</td>
-            <td>{station.num_bikes_available}</td>
-            <td>{station.num_docks_available}</td>
+            <td>{station.name}</td>
+            <td>{station.availableBikeCount}</td>
+            <td>{station.availableLockCount}</td>
           </tr>)
         }
       </table>

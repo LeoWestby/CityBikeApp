@@ -10,9 +10,9 @@ class BikeStatusController {
     val bikeStatusService = BikeStatusService()
 
     @GetMapping("api/bikeStatus")
-    fun index(): ResponseEntity<BikeStatus> {
+    fun index(): ResponseEntity<BikeStationStatus> {
         val bikeStatus = bikeStatusService.getBikeStatus()
-            ?: return ResponseEntity<BikeStatus>(HttpStatus.SERVICE_UNAVAILABLE)
+            ?: return ResponseEntity(HttpStatus.SERVICE_UNAVAILABLE)
         return ResponseEntity(bikeStatus, HttpStatus.OK)
     }
 }
