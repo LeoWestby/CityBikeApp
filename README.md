@@ -17,6 +17,11 @@ Then run the following command in the project's root directory:
 
 This should compile and start the Kotlin backend at localhost:8080.
 
+To run all integration tests in the project, run the following command:
+```bash
+./gradlew test
+```
+
 ### Frontend
 
 The frontend requires [Node Package Manager](https://www.npmjs.com/get-npm) to be installed.
