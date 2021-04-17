@@ -10,18 +10,23 @@ class App extends Component {
   };
 
   async updateBikeList() {
-    const response = await fetch('http://localhost:8080/api/bikeStationStatus');
-    if (response.status === 200) {
-      const body = await response.json();
-      this.setState({
-        stations: body.stations,
-        stationsUpdatedAt: new Date(body.updatedAt),
-        isError: false
-      });
+    try {
+      const response = await fetch('http://localhost:8080/api/bikeStationStatus');
+      if (response.status === 200) {
+        const body = await response.json();
+        this.setState({
+          stations: body.stations,
+          stationsUpdatedAt: new Date(body.updatedAt),
+          isError: false
+        });
 
-      //Auto refresh bike list
-      setTimeout(() => this.updateBikeList(), body.ttlInSeconds * 1000);
-    } else {
+        //Auto refresh bike list
+        setTimeout(() => this.updateBikeList(), body.ttlInSeconds * 1000);
+      } else {
+        this.setState({isError: true});
+      }
+    }
+    catch {
       this.setState({isError: true});
     }
   }
