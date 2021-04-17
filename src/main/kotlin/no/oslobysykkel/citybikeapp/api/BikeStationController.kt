@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class BikeStationController(val bikeStatusService: BikeStationService) {
-    @GetMapping("api/bikeStationStatus")
+    @GetMapping("api/bikeStation/status")
     fun getBikeStationStatus(): ResponseEntity<BikeStationStatus> {
         val bikeStatus = bikeStatusService.getBikeStationStatus()
             ?: return ResponseEntity(HttpStatus.SERVICE_UNAVAILABLE)
